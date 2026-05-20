@@ -141,9 +141,24 @@ const datePreset = ref('last30')
 
 const regionDomestic = ref(true)
 const regionGlobal = ref(true)
-const regionUS = ref(false)
-const regionJP = ref(false)
+const regionUS = ref(true)
+const regionJP = ref(true)
 const chartKey = ref(0) // force chart re-render on filter change
+
+watch(regionGlobal, (newVal) => {
+  if (newVal) {
+    regionUS.value = true
+    regionJP.value = true
+  } else {
+    regionUS.value = false
+    regionJP.value = false
+  }
+})
+watch([regionUS, regionJP], ([newUS, newJP]) => {
+  if (regionGlobal.value && !newUS && !newJP) {
+    regionGlobal.value = false
+  }
+})
 
 const dateOptions = [
   { label: 'Last 30 Days', value: 'last30' },

@@ -209,7 +209,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDataStore } from '../stores/data'
 import { useQuasar } from 'quasar'
@@ -225,8 +225,23 @@ const regDateRange  = ref(null)
 const regDatePreset = ref('None')
 const frDomestic    = ref(true)
 const frGlobal      = ref(true)
-const frUS          = ref(false)
-const frJP          = ref(false)
+const frUS          = ref(true)
+const frJP          = ref(true)
+
+watch(frGlobal, (newVal) => {
+  if (newVal) {
+    frUS.value = true
+    frJP.value = true
+  } else {
+    frUS.value = false
+    frJP.value = false
+  }
+})
+watch([frUS, frJP], ([newUS, newJP]) => {
+  if (frGlobal.value && !newUS && !newJP) {
+    frGlobal.value = false
+  }
+})
 
 // ── Sort / Pagination ─────────────────────────────────────────
 const sortField   = ref('regDate')

@@ -432,7 +432,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDataStore } from '../stores/data'
 import { useQuasar } from 'quasar'
@@ -456,12 +456,27 @@ const purchasePreset = ref('None')
 const dueDatePreset  = ref('None')
 const frDomestic   = ref(true)
 const frGlobal     = ref(true)
-const frUS         = ref(false)
-const frJP         = ref(false)
+const frUS         = ref(true)
+const frJP         = ref(true)
 const sortField    = ref('uid')
 const sortOrder    = ref('desc')
 const perPage      = ref(5)
 const subPage      = ref(1)
+
+watch(frGlobal, (newVal) => {
+  if (newVal) {
+    frUS.value = true
+    frJP.value = true
+  } else {
+    frUS.value = false
+    frJP.value = false
+  }
+})
+watch([frUS, frJP], ([newUS, newJP]) => {
+  if (frGlobal.value && !newUS && !newJP) {
+    frGlobal.value = false
+  }
+})
 
 const sortOptions = [
   { label: 'Prod_UID',      value: 'uid' },
