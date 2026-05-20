@@ -228,7 +228,7 @@
 
       <div class="row items-center q-col-gutter-md q-mb-md">
         <div class="col-auto">
-          <q-btn color="primary" icon="rocket_launch" label="Publish Product" @click="publishDialog = true"/>
+          <q-btn color="primary" icon="rocket_launch" label="Publish Product" @click="openPublishDialog"/>
         </div>
         <div class="col-12 col-md-4">
           <q-input outlined dense v-model="pubSearch"
@@ -298,65 +298,115 @@
     </div>
 
     <!-- ── Publish Dialog ── -->
-    <q-dialog v-model="publishDialog">
-      <q-card class="bg-grey-1" style="min-width:440px">
-        <q-card-section><div class="text-h6">🚀 Publish Product</div></q-card-section>
-        <q-card-section class="q-gutter-md">
-          <q-select outlined v-model="newPub.uid" :options="unpublishedUids" label="Select Product UID"/>
-          <q-input outlined v-model="newPub.price" label="Price (e.g. $ 150)"/>
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn flat label="Cancel" v-close-popup/>
-          <q-btn flat label="Publish" color="primary" @click="doPublish"/>
-        </q-card-actions>
+    <q-dialog v-model="publishDialog" persistent>
+      <q-card class="text-dark q-pa-md" style="background-color: #ffffff; min-width: 440px; border-radius: 8px; border: 1px solid #e0e0e0;">
+        <!-- Header -->
+        <div class="row items-center justify-between q-mb-lg">
+          <div class="text-h5 text-weight-bold text-black">Publish Product</div>
+          <q-btn flat round dense icon="close" color="dark" v-close-popup />
+        </div>
+
+        <div class="q-gutter-y-lg">
+          <!-- Search User -->
+          <div>
+            <div class="text-subtitle2 text-weight-bold q-mb-sm text-grey-8">Search User</div>
+            <q-select outlined dense v-model="newPub.customer" :options="userOptions"
+              placeholder="Select a user..."
+              color="red"
+              style="border: 1px solid #f44336; border-radius: 4px;" />
+          </div>
+
+          <!-- Product Type -->
+          <div>
+            <div class="text-subtitle2 text-weight-bold q-mb-sm text-grey-8">Product Type</div>
+            <div class="row items-center q-gutter-x-lg">
+              <q-checkbox v-model="newPub.platform" label="Platform" color="red" keep-color disable />
+              <q-checkbox v-model="newPub.orthodontics" label="Orthodontics" color="red" keep-color />
+              <q-checkbox v-model="newPub.surgery" label="Surgery" color="red" keep-color />
+            </div>
+          </div>
+
+          <!-- Activation -->
+          <div>
+            <div class="text-subtitle2 text-weight-bold q-mb-sm text-grey-8">Activation</div>
+            <div class="row items-center q-gutter-x-lg">
+              <q-radio v-model="newPub.activation" val="Activation" label="Activation" color="red" keep-color />
+              <q-radio v-model="newPub.activation" val="Deactivation" label="Deactivation" color="red" keep-color />
+            </div>
+          </div>
+
+          <!-- Due Date -->
+          <div>
+            <div class="text-subtitle2 text-weight-bold q-mb-xs text-grey-8">Due Date</div>
+            <q-input outlined dense v-model="newPub.dueDate" mask="XXXX/XX/XX"
+              style="border-radius: 4px;">
+              <template v-slot:append>
+                <q-icon name="event" class="cursor-pointer text-grey-7">
+                  <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                    <q-date v-model="newPub.dueDate" mask="YYYY/MM/DD" color="red" today-btn />
+                  </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
+          </div>
+
+          <!-- Footer Buttons -->
+          <div class="row q-col-gutter-md q-pt-md">
+            <div class="col-6">
+              <q-btn label="OK" color="red" class="full-width text-weight-bold text-white" size="lg" unelevated @click="doPublish" />
+            </div>
+            <div class="col-6">
+              <q-btn label="Cancel" outline color="grey-8" class="full-width text-weight-bold text-black" size="lg" v-close-popup style="border-color: #ccc;" />
+            </div>
+          </div>
+        </div>
       </q-card>
     </q-dialog>
 
     <!-- ── Change Product Option Dialog ── -->
     <q-dialog v-model="optionDialog" persistent>
-      <q-card class="text-white q-pa-md" style="background-color: #121824; min-width: 440px; border-radius: 8px; border: 1px solid #2d3748;">
+      <q-card class="text-dark q-pa-md" style="background-color: #ffffff; min-width: 440px; border-radius: 8px; border: 1px solid #e0e0e0;">
         <!-- Header -->
         <div class="row items-center justify-between q-mb-lg">
-          <div class="text-h5 text-weight-bold">Change Product Option</div>
-          <q-btn flat round dense icon="close" color="white" v-close-popup />
+          <div class="text-h5 text-weight-bold text-black">Change Product Option</div>
+          <q-btn flat round dense icon="close" color="dark" v-close-popup />
         </div>
 
         <div v-if="selectedProd" class="q-gutter-y-lg">
           <!-- Target Product -->
           <div class="row items-center">
             <span class="text-subtitle1 text-weight-bold q-mr-sm">Target Product:</span>
-            <q-badge color="green-10" text-color="green-13" class="q-px-sm q-py-xs text-weight-bold" style="font-size: 13px;">
+            <q-badge color="green-2" text-color="green-10" class="q-px-sm q-py-xs text-weight-bold" style="font-size: 13px;">
               {{ selectedProd.uid }}
             </q-badge>
           </div>
 
           <!-- Product Type -->
           <div>
-            <div class="text-subtitle2 text-weight-bold q-mb-sm text-grey-4">Product Type</div>
+            <div class="text-subtitle2 text-weight-bold q-mb-sm text-grey-8">Product Type</div>
             <div class="row items-center q-gutter-x-lg">
-              <q-checkbox dark v-model="optTypes.platform" label="Platform" color="red" keep-color disable />
-              <q-checkbox dark v-model="optTypes.orthodontics" label="Orthodontics" color="red" keep-color />
-              <q-checkbox dark v-model="optTypes.surgery" label="Surgery" color="red" keep-color />
+              <q-checkbox v-model="optTypes.platform" label="Platform" color="red" keep-color disable />
+              <q-checkbox v-model="optTypes.orthodontics" label="Orthodontics" color="red" keep-color />
+              <q-checkbox v-model="optTypes.surgery" label="Surgery" color="red" keep-color />
             </div>
           </div>
 
           <!-- Activation -->
           <div>
-            <div class="text-subtitle2 text-weight-bold q-mb-sm text-grey-4">Activation</div>
+            <div class="text-subtitle2 text-weight-bold q-mb-sm text-grey-8">Activation</div>
             <div class="row items-center q-gutter-x-lg">
-              <q-radio dark v-model="optActivation" val="Activation" label="Activation" color="red" keep-color />
-              <q-radio dark v-model="optActivation" val="Deactivation" label="Deactivation" color="red" keep-color />
+              <q-radio v-model="optActivation" val="Activation" label="Activation" color="red" keep-color />
+              <q-radio v-model="optActivation" val="Deactivation" label="Deactivation" color="red" keep-color />
             </div>
           </div>
 
           <!-- Due Date -->
           <div>
-            <div class="text-subtitle2 text-weight-bold q-mb-xs text-grey-4">Due Date</div>
-            <q-input dark outlined dense v-model="optDueDate" mask="XXXX/XX/XX"
-              input-style="color: #fff; background-color: #1e2530;"
-              class="bg-transparent" style="border-radius: 4px;">
+            <div class="text-subtitle2 text-weight-bold q-mb-xs text-grey-8">Due Date</div>
+            <q-input outlined dense v-model="optDueDate" mask="XXXX/XX/XX"
+              style="border-radius: 4px;">
               <template v-slot:append>
-                <q-icon name="event" class="cursor-pointer text-grey-4">
+                <q-icon name="event" class="cursor-pointer text-grey-7">
                   <q-popup-proxy cover transition-show="scale" transition-hide="scale">
                     <q-date v-model="optDueDate" mask="YYYY/MM/DD" color="red" today-btn />
                   </q-popup-proxy>
@@ -371,7 +421,7 @@
               <q-btn label="OK" color="red" class="full-width text-weight-bold text-white" size="lg" unelevated @click="saveOption" />
             </div>
             <div class="col-6">
-              <q-btn label="Cancel" outline color="grey-6" class="full-width text-weight-bold text-white" size="lg" v-close-popup style="border-color: #374151;" />
+              <q-btn label="Cancel" outline color="grey-8" class="full-width text-weight-bold text-black" size="lg" v-close-popup style="border-color: #ccc;" />
             </div>
           </div>
         </div>
@@ -544,7 +594,16 @@ const pubPage    = ref(1)
 const publishDialog = ref(false)
 const optionDialog  = ref(false)
 const selectedProd  = ref(null)
-const newPub = ref({ uid: null, price: '$ 150' })
+const newPub = ref({
+  customer: null,
+  platform: true,
+  orthodontics: false,
+  surgery: false,
+  activation: 'Activation',
+  dueDate: '2026/05/20'
+})
+
+const userOptions = computed(() => store.users.map(u => u.name))
 
 const optTypes = ref({
   platform: false,
@@ -623,13 +682,55 @@ function saveOption() {
   optionDialog.value = false
 }
 
-function doPublish() {
-  const idx = store.products.findIndex(p => p.uid === newPub.value.uid)
-  if (idx !== -1) {
-    store.products[idx].publish = 'Yes'
-    store.products[idx].price = newPub.value.price
-    $q.notify({ type: 'positive', message: `${newPub.value.uid} published successfully.` })
+function openPublishDialog() {
+  newPub.value = {
+    customer: null,
+    platform: true,
+    orthodontics: false,
+    surgery: false,
+    activation: 'Activation',
+    dueDate: '2026/05/20'
   }
+  publishDialog.value = true
+}
+
+function doPublish() {
+  if (!newPub.value.customer) {
+    $q.notify({ type: 'negative', message: 'Please select a user.' })
+    return
+  }
+  
+  const chosen = []
+  if (newPub.value.platform) chosen.push('Platform')
+  if (newPub.value.orthodontics) chosen.push('Orthodontics')
+  if (newPub.value.surgery) chosen.push('Surgery')
+  
+  const typeStr = chosen.join(', ') || 'Platform'
+  const isAvailable = (newPub.value.activation === 'Activation') ? 'Yes' : 'No'
+  
+  const nextNum = store.products.length
+  const newUid = `PROD-${String(nextNum).padStart(3, '0')}`
+  
+  const user = store.users.find(u => u.name === newPub.value.customer)
+  const region = user ? user.region : 'Domestic'
+  
+  const productObj = {
+    uid: newUid,
+    type: typeStr,
+    customer: newPub.value.customer,
+    region: region,
+    price: `$ 150`,
+    purchaseTime: `2026-05-20 12:00`,
+    dueDate: newPub.value.dueDate.replaceAll('/', '-'),
+    lastConnect: `2026-05-20 12:00`,
+    available: isAvailable,
+    subscribe: isAvailable,
+    publish: 'Yes'
+  }
+  
+  store.products.push(productObj)
+  
+  $q.notify({ type: 'positive', message: `${newUid} published successfully for ${newPub.value.customer}.` })
   publishDialog.value = false
 }
 </script>
