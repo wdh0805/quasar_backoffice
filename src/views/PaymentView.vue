@@ -173,14 +173,47 @@ const statusFilter = ref('All')
 const ftPoint     = ref(true)
 const ftAppliance = ref(true)
 
-const ftSurgSplint      = ref(false)
-const ftCmdSplint       = ref(false)
-const ftAlignerModel    = ref(false)
-const ftDirectAligner  = ref(false)
-const ftIdb            = ref(false)
-const ftAtozGuide      = ref(false)
-const ftImplantGuide    = ref(false)
-const ftAtozPositioning = ref(false)
+const ftSurgSplint      = ref(true)
+const ftCmdSplint       = ref(true)
+const ftAlignerModel    = ref(true)
+const ftDirectAligner  = ref(true)
+const ftIdb            = ref(true)
+const ftAtozGuide      = ref(true)
+const ftImplantGuide    = ref(true)
+const ftAtozPositioning = ref(true)
+
+watch(ftAppliance, (newVal) => {
+  if (newVal) {
+    ftSurgSplint.value = true
+    ftCmdSplint.value = true
+    ftAlignerModel.value = true
+    ftDirectAligner.value = true
+    ftIdb.value = true
+    ftAtozGuide.value = true
+    ftImplantGuide.value = true
+    ftAtozPositioning.value = true
+  } else {
+    ftSurgSplint.value = false
+    ftCmdSplint.value = false
+    ftAlignerModel.value = false
+    ftDirectAligner.value = false
+    ftIdb.value = false
+    ftAtozGuide.value = false
+    ftImplantGuide.value = false
+    ftAtozPositioning.value = false
+  }
+})
+
+watch([
+  ftSurgSplint, ftCmdSplint, ftAlignerModel, ftDirectAligner,
+  ftIdb, ftAtozGuide, ftImplantGuide, ftAtozPositioning
+], ([
+  surg, cmd, aligner, direct, idb, atoz, implant, positioning
+]) => {
+  if (ftAppliance.value && !surg && !cmd && !aligner && !direct && !idb && !atoz && !implant && !positioning) {
+    ftAppliance.value = false
+  }
+})
 
 const ftON3D      = ref(true)
 const frDomestic  = ref(true)
